@@ -60,7 +60,7 @@ jobs:
             org.opencontainers.image.source=https://github.com/${{ github.repository }}/tree/${{ github.sha }}
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
         with:
           platforms: ${{ inputs.platforms }}
       - name: Set up Docker Buildx
