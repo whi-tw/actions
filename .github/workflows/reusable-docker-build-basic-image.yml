@@ -15,9 +15,9 @@ on:
         type: string
         description: Path to the Dockerfile to build.
       platforms:
-        default: "linux/amd64"
+        default: '["linux/amd64"]'
         type: string
-        description: Platforms to build image for
+        description: Platforms to build image for (JSON Array)
       build_context:
         default: "."
         type: string
@@ -40,7 +40,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        architecture: ${{ inputs.platforms }}
+        architecture: ${{ fromJSON(inputs.platforms) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
