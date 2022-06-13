@@ -29,6 +29,9 @@ on:
         default: true
         type: boolean
         description: Enable pushing to registry
+    secrets:
+      CAS_API_KEY:
+        required: true
 
 jobs:
   build_image:
@@ -67,15 +70,30 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Build and push
+      - name: Build
         id: docker_build
         uses: docker/build-push-action@v3
         with:
           file: ${{ inputs.dockerfile }}
           context: ${{ inputs.build_context }}
           platforms: ${{ inputs.platforms }}
-          push: ${{ inputs.push }}
-          tags: ${{ steps.meta.outputs.tags }}
+          load: true
+          tags: docker-image-build-whi-tw:${{ github.sha }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Notarize Docker image
+        uses: codenotary/cas-notarize-docker-image-github-action@main
+        with:
+          asset: docker://docker-image-build-whi-tw:${{ github.sha }}
+          cas_api_key: ${{ secrets.CAS_API_KEY }}
+        if: inputs.push
+
+      - name: Tag docker image
+        run: |
+          docker tag
+
+      - name: Push docker image
+        run: |
+          docker image push --all-tags
